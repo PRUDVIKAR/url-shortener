@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>URL Shortener</title>
+  <meta charset="UTF-8" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f8f9fa;
+      padding: 40px;
+      max-width: 600px;
+      margin: auto;
+    }
+
+    h1 {
+      text-align: center;
+      color: #343a40;
+    }
+
+    form {
+      margin: 20px 0;
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 12px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
+    button {
+      background-color: #007bff;
+      color: white;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    #short-result, #analytics-result {
+      margin-top: 15px;
+      padding: 12px;
+      background-color: #e9ecef;
+      border-radius: 8px;
+      font-family: monospace;
+    }
+
+    hr {
+      margin: 40px 0;
+      border: none;
+      border-top: 1px solid #dee2e6;
+    }
+  </style>
+</head>
+<body>
+  <h1>🚀 URL Shortener</h1>
+
+  <form id="shorten-form">
+    <input type="text" id="original_url" placeholder="Enter a long URL" required />
+    <button type="submit">Shorten URL</button>
+  </form>
+
+  <div id="short-result"></div>
+
+  <hr>
+
+  <form id="analytics-form">
+    <input type="text" id="short_code" placeholder="Enter short code (e.g., abc123)" required />
+    <button type="submit">Get Analytics</button>
+  </form>
+
+  <div id="analytics-result"></div>
+
+  <script>
+    document.getElementById("shorten-form").onsubmit = async (e) => {
+      e.preventDefault();
+      const url = document.getElementById("original_url").value;
+      const res = await fetch("/shorten", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ original_url: url })
+      });
+      const data = await res.json();
+      document.getElementById("short-result").innerHTML =
+        `<strong>Short URL:</strong> <a href="${data.short_url}" target="_blank">${data.short_url}</a><br><strong>Clicks:</strong> ${data.clicks}`;
+    };
+
+    document.getElementById("analytics-form").onsubmit = async (e) => {
+      e.preventDefault();
+      const code = document.getElementById("short_code").value;
+      const res = await fetch(`/analytics/${code}`);
+      const data = await res.json();
+      document.getElementById("analytics-result").innerText =
+        JSON.stringify(data, null, 2);
+    };
+  </script>
+</body>
+</html>
+
