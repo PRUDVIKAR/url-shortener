@@ -1,6 +1,7 @@
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
 import os
+from fastapi import Request
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
 import models, schemas, crud
@@ -26,10 +27,15 @@ def get_db():
         db.close()
 
 @app.post("/shorten", response_model=schemas.URLInfo)
-def create_short_url(payload: schemas.URLBase, db: Session = Depends(get_db)):
+def create_short_url(payload: schemas.URLBase, request: Request, db: Session = Depends(get_db)):
     db_url = crud.get_or_create_short_url(db, original_url=payload.original_url)
     short_url = f"{request.base_url}{db_url.short_code}"
-    return {"original_url": db_url.original_url, "short_url": short_url,"clicks": db_url.clicks}
+    return {
+        "original_url": db_url.original_url,
+        "short_url": short_url,
+        "clicks": db_url.clicks
+    }
+
 from fastapi.responses import RedirectResponse
 
 @app.get("/{short_code}")
